@@ -1,0 +1,57 @@
+-- 1. Dataset overview
+SELECT
+    COUNT(*) AS total_rows,
+    COUNT(DISTINCT BILLING_CODE) AS distinct_billing_codes,
+    COUNT(DISTINCT PROVIDER_REFERENCE_ID) AS distinct_provider_references,
+    COUNT(DISTINCT NPI) AS distinct_npis
+FROM UHC_PRICING_PROVIDER_DATA;
+
+
+-- 2. Price data quality checks
+SELECT
+    COUNT(*) AS total_rows,
+    COUNT_IF(NEGOTIATED_RATE IS NULL) AS null_prices,
+    COUNT_IF(NEGOTIATED_RATE < 0) AS negative_prices,
+    COUNT_IF(NEGOTIATED_RATE = 0) AS zero_prices,
+    MIN(NEGOTIATED_RATE) AS min_price,
+    MAX(NEGOTIATED_RATE) AS max_price,
+    AVG(NEGOTIATED_RATE) AS avg_price
+FROM UHC_PRICING_PROVIDER_DATA;
+
+
+-- 3. Pricing analysis by billing code
+SELECT
+    BILLING_CODE,
+    BILLING_CODE_TYPE,
+    NAME,
+    COUNT(*) AS row_count,
+    COUNT(DISTINCT NPI) AS distinct_npis,
+    COUNT(DISTINCT NEGOTIATED_RATE) AS distinct_prices,
+    MIN(NEGOTIATED_RATE) AS min_price,
+    MEDIAN(NEGOTIATED_RATE) AS median_price,
+    AVG(NEGOTIATED_RATE) AS avg_price,
+    MAX(NEGOTIATED_RATE) AS max_price,
+    STDDEV(NEGOTIATED_RATE) AS stddev_price,
+    STDDEV(NEGOTIATED_RATE)
+        / NULLIF(AVG(NEGOTIATED_RATE), 0) AS coefficient_of_variation
+FROM UHC_PRICING_PROVIDER_DATA
+GROUP BY
+    BILLING_CODE,
+    BILLING_CODE_TYPE,
+    NAME
+ORDER BY row_count DESC;
+
+
+-- 4. Highest negotiated prices
+SELECT
+    BILLING_CODE,
+    BILLING_CODE_TYPE,
+    NAME,
+    NPI,
+    PROVIDER_REFERENCE_ID,
+    NEGOTIATED_TYPE,
+    NEGOTIATED_RATE
+FROM UHC_PRICING_PROVIDER_DATA
+WHERE NEGOTIATED_RATE IS NOT NULL
+ORDER BY NEGOTIATED_RATE DESC
+LIMIT 20;
