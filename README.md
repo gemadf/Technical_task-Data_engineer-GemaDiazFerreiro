@@ -92,7 +92,7 @@ The analysis is exploratory and is constrained by the scope of the selected sour
 - REST API and JSON
 - Parquet
 - Snowflake SQL
-- Jupyter Notebook / Google Colab
+- Google Colab
 
 ## 8. Reproducibility
 
